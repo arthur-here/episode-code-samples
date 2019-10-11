@@ -62,15 +62,15 @@ func nthPrime(_ n: Int, callback: @escaping (Int?) -> Void) -> Void {
 
 
 struct ContentView: View {
-  @ObservedObject var state: AppState
+  @EnvironmentObject var state: AppState
 
   var body: some View {
     NavigationView {
       List {
-        NavigationLink(destination: CounterView(state: self.state)) {
+        NavigationLink(destination: CounterView().environmentObject(state)) {
           Text("Counter demo")
         }
-        NavigationLink(destination: FavoritePrimesView(state: self.state)) {
+        NavigationLink(destination: FavoritePrimesView().environmentObject(state)) {
           Text("Favorite primes")
         }
       }
@@ -101,7 +101,7 @@ struct PrimeAlert: Identifiable {
 }
 
 struct CounterView: View {
-  @ObservedObject var state: AppState
+  @EnvironmentObject var state: AppState
   @State var isPrimeModalShown: Bool = false
   @State var alertNthPrime: PrimeAlert?
   @State var isNthPrimeButtonDisabled = false
@@ -128,7 +128,8 @@ struct CounterView: View {
     .font(.title)
     .navigationBarTitle("Counter demo")
     .sheet(isPresented: self.$isPrimeModalShown) {
-      IsPrimeModalView(state: self.state)
+      IsPrimeModalView()
+        .environmentObject(self.state)
     }
     .alert(item: self.$alertNthPrime) { alert in
       Alert(
@@ -157,7 +158,7 @@ private func isPrime (_ p: Int) -> Bool {
 }
 
 struct IsPrimeModalView: View {
-  @ObservedObject var state: AppState
+  @EnvironmentObject var state: AppState
 
   var body: some View {
     VStack {
@@ -186,7 +187,7 @@ struct IsPrimeModalView: View {
 }
 
 struct FavoritePrimesView: View {
-  @ObservedObject var state: AppState
+  @EnvironmentObject var state: AppState
 
   var body: some View {
     List {
@@ -207,6 +208,6 @@ struct FavoritePrimesView: View {
 import PlaygroundSupport
 
 PlaygroundPage.current.liveView = UIHostingController(
-  rootView: ContentView(state: AppState())
+  rootView: ContentView().environmentObject(AppState())
 //  rootView: CounterView()
 )
