@@ -80,10 +80,11 @@ func primeModalReducer(state: inout AppState, action: AppAction) {
   }
 }
 
-struct FavoritePrimesState {
-  var favoritePrimes: [Int]
-  var activityFeed: [AppState.Activity]
-}
+typealias FavoritePrimesState = (favoritePrimes: [Int], activityFeed: [AppState.Activity])
+//struct FavoritePrimesState {
+//  var favoritePrimes: [Int]
+//  var activityFeed: [AppState.Activity]
+//}
 
 func favoritePrimesReducer(state: inout FavoritePrimesState, action: AppAction) {
   switch action {
@@ -102,6 +103,28 @@ func favoritePrimesReducer(state: inout FavoritePrimesState, action: AppAction) 
 //  switch action {
 //  }
 //}
+
+func transform<GlobalValue, LocalValue, Action>(
+  _ value: WritableKeyPath<GlobalValue, LocalValue>,
+  localReducer: @escaping (inout LocalValue, Action) -> Void
+) -> (Store<GlobalValue, Action>) -> Store<LocalValue, Action> {
+  return { store in
+    Store(
+      initialValue: store.value[keyPath: value],
+      reducer: localReducer
+    )
+  }
+}
+
+func map<Value, OtherValue, Action>(
+  _ reducer: @escaping (inout Value, Action) -> Void,
+  value: WritableKeyPath<Value, OtherValue>
+) -> (inout OtherValue, Action) -> Void {
+//  return { other, action in
+////    other[keyPath: other]
+//  }
+  fatalError()
+}
 
 func combine<Value, Action>(
   _ reducers: (inout Value, Action) -> Void...
@@ -134,6 +157,22 @@ func pullback<LocalValue, GlobalValue, Action>(
   }
 }
 
+func pullback<LocalAction, GlobalAction, Value>(
+  _ reducer: @escaping (inout Value, LocalAction) -> Void,
+  _ f: @escaping (GlobalAction) -> LocalAction?
+) -> (inout Value, GlobalAction) -> Void {
+  return { value, globalAction in
+    guard let localAction = f(globalAction) else {
+      return
+    }
+
+    reducer(&value, localAction)
+  }
+}
+// map(f >>> g) == map(f) >>> map(g)
+// pullback(f(B->A) <<< g(C->B)) === pullback(f) <<< pullback(g)
+//pullback(<#T##reducer: (inout LocalValue, Action) -> Void##(inout LocalValue, Action) -> Void#>, value: <#T##WritableKeyPath<GlobalValue, LocalValue>#>)
+
 extension AppState {
   var favoritePrimesState: FavoritePrimesState {
     get {
@@ -154,6 +193,7 @@ let _appReducer = combine(
   primeModalReducer,
   pullback(favoritePrimesReducer, value: \.favoritePrimesState)
 )
+
 let appReducer = pullback(_appReducer, value: \.self)
   //combine(combine(counterReducer, primeModalReducer), favoritePrimesReducer)
 
