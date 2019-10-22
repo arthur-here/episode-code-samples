@@ -140,11 +140,9 @@ func primeModalReducer(state: inout AppState, action: PrimeModalAction) -> Void 
   switch action {
   case .removeFavoritePrimeTapped:
     state.favoritePrimes.removeAll(where: { $0 == state.count })
-    state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.count)))
 
   case .saveFavoritePrimeTapped:
     state.favoritePrimes.append(state.count)
-    state.activityFeed.append(.init(timestamp: Date(), type: .addedFavoritePrime(state.count)))
   }
 }
 
@@ -157,7 +155,6 @@ func favoritePrimesReducer(state: inout FavoritePrimesState, action: FavoritePri
   switch action {
   case let .deleteFavoritePrimes(indexSet):
     for index in indexSet {
-      state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.favoritePrimes[index])))
       state.favoritePrimes.remove(at: index)
     }
   }
@@ -239,13 +236,48 @@ struct EnumKeyPath<Root, Value> {
 }
 // \AppAction.counter // EnumKeyPath<AppAction, CounterAction>
 
+func activityFeed(
+  _ reducer: @escaping (inout AppState, AppAction) -> Void
+) -> (inout AppState, AppAction) -> Void {
+  return { state, action in
+    switch action {
+    case .primeModal(.saveFavoritePrimeTapped):
+      state.activityFeed.append(.init(timestamp: Date(), type: .addedFavoritePrime(state.count)))
+
+    case .primeModal(.removeFavoritePrimeTapped):
+      state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.count)))
+
+    case .favoritePrimes(.deleteFavoritePrimes(let indexes)):
+      for index in indexes {
+        state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.favoritePrimes[index])))
+      }
+
+    default:
+      break
+    }
+
+    reducer(&state, action)
+  }
+}
+
+func logging<Value, Action>(
+  _ reducer: @escaping (inout Value, Action) -> Void
+) -> (inout Value, Action) -> Void {
+  return { value, action in
+    print("Dispatching action \(action)")
+    reducer(&value, action)
+  }
+}
+
 let _appReducer: (inout AppState, AppAction) -> Void = combine(
   pullback(counterReducer, value: \.count, action: \.counter),
   pullback(primeModalReducer, value: \.self, action: \.primeModal),
   pullback(favoritePrimesReducer, value: \.favoritePrimesState, action: \.favoritePrimes)
 )
-let appReducer = pullback(_appReducer, value: \.self, action: \.self)
-  //combine(combine(counterReducer, primeModalReducer), favoritePrimesReducer)
+let appReducer =
+  logging(activityFeed(
+    _appReducer
+  ))
 
 
 // [1, 2, 3].reduce(<#T##initialResult: Result##Result#>, <#T##nextPartialResult: (Result, Int) throws -> Result##(Result, Int) throws -> Result#>)
@@ -374,6 +406,6 @@ struct ContentView: View {
 import PlaygroundSupport
 PlaygroundPage.current.liveView = UIHostingController(
   rootView: ContentView(
-    store: Store(initialValue: AppState(), appReducer)
+    store: Store(initialValue: AppState(), reducer: appReducer)
   )
 )
