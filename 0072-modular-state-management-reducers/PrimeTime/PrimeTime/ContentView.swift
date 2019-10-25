@@ -215,11 +215,11 @@ func isPrime(_ p: Int) -> Bool {
 }
 
 struct FavoritePrimesView: View {
-  @ObservedObject var store: Store<AppState, AppAction>
+  @ObservedObject var store: Store<[Int], AppAction>
 
   var body: some View {
     List {
-      ForEach(self.store.value.favoritePrimes, id: \.self) { prime in
+      ForEach(self.store.value, id: \.self) { prime in
         Text("\(prime)")
       }
       .onDelete { indexSet in
@@ -242,7 +242,7 @@ struct ContentView: View {
         )
         NavigationLink(
           "Favorite primes",
-          destination: FavoritePrimesView(store: self.store)
+          destination: FavoritePrimesView(store: self.store.view(get: { $0.favoritePrimes }))
         )
       }
       .navigationBarTitle("State management")

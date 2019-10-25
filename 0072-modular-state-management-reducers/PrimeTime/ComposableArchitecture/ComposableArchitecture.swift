@@ -48,3 +48,13 @@ public func logging<Value, Action>(
   }
 }
 
+public extension Store {
+  func view<LocalValue>(
+    get: @escaping (Value) -> LocalValue
+    ) -> Store<LocalValue, Action> {
+    return Store<LocalValue, Action>(initialValue: get(value), reducer: { localValue, action in
+      self.send(action)
+      localValue = get(self.value)
+    })
+  }
+}
