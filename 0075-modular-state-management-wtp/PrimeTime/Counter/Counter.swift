@@ -5,6 +5,7 @@ import SwiftUI
 public enum CounterAction {
   case decrTapped
   case incrTapped
+  case counterTextFieldChanged(String)
 }
 
 public func counterReducer(state: inout Int, action: CounterAction) {
@@ -14,12 +15,17 @@ public func counterReducer(state: inout Int, action: CounterAction) {
 
   case .incrTapped:
     state += 1
+
+  case .counterTextFieldChanged(let text):
+    if let value = Int(text) {
+      state = value
+    }
   }
 }
 
-public let counterViewReducer = combine(
+public let counterViewReducer: (inout CounterViewState, CounterViewAction) -> Void = combine(
   pullback(counterReducer, value: \CounterViewState.count, action: \CounterViewAction.counter),
-  pullback(primeModalReducer, value: \.self, action: \.primeModal)
+  pullback(primeModalReducer, value: \.primeModalState, action: \CounterViewAction.primeModal)
 )
 
 struct PrimeAlert: Identifiable {
@@ -27,7 +33,27 @@ struct PrimeAlert: Identifiable {
   var id: Int { self.prime }
 }
 
-public typealias CounterViewState = (count: Int, favoritePrimes: [Int])
+public struct CounterViewState {
+  public init (count: Int, favoritePrimes: [Int]) {
+    self.count = count
+    self.favoritePrimes = favoritePrimes
+  }
+
+  public var count: Int
+  public var favoritePrimes: [Int]
+
+  var primeModalState: PrimeModalState {
+    get { return PrimeModalState(count: count, favoritePrimes: favoritePrimes) }
+    set {
+      self.count = newValue.count
+      self.favoritePrimes = newValue.favoritePrimes
+    }
+  }
+}
+
+extension CounterViewState {
+  var stringCount: String { return "\(count)" }
+}
 
 public enum CounterViewAction {
   case counter(CounterAction)
@@ -71,7 +97,11 @@ public struct CounterView: View {
     VStack {
       HStack {
         Button("-") { self.store.send(.counter(.decrTapped)) }
-        Text("\(self.store.value.count)")
+        TextField(
+          "Number",
+          text: self.store
+            .send({ .counter(CounterAction.counterTextFieldChanged($0)) },
+                  binding: \.stringCount))
         Button("+") { self.store.send(.counter(.incrTapped)) }
       }
       Button("Is this prime?") { self.isPrimeModalShown = true }

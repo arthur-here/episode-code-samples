@@ -85,3 +85,16 @@ public func logging<Value, Action>(
   }
 }
 
+
+extension Store {
+  public func send<LocalValue>(
+    _ event: @escaping (LocalValue) -> Action,
+    binding keyPath: KeyPath<Value, LocalValue>
+  ) -> Binding<LocalValue> {
+    return Binding(get: {
+      return self.value[keyPath: keyPath]
+    }, set: { newValue in
+      self.send(event(newValue))
+    })
+  }
+}
