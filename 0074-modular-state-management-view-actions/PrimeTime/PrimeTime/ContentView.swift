@@ -124,9 +124,9 @@ struct ContentView: View {
               value: { ($0.count, $0.favoritePrimes) },
               action: {
                 switch $0 {
-                case let .counter(action):
+                case let .left(action):
                   return AppAction.counter(action)
-                case let .primeModal(action):
+                case let .right(action):
                   return AppAction.primeModal(action)
                 }
             }
