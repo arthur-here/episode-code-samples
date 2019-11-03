@@ -81,3 +81,12 @@ public func logging<Value, Action>(
     }
   }
 }
+
+public func pure<State, Action>(
+  _ reducer: @escaping (inout State, Action) -> Void
+) -> Reducer<State, Action> {
+  return { state, action -> Effect in
+    reducer(&state, action)
+    return {}
+  }
+}
