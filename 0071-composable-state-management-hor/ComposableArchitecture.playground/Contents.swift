@@ -259,6 +259,13 @@ func filterActions<Value, Action>(_ predicate: @escaping (Action) -> Bool)
 
 let historyLimit = 10
 
+indirect enum BidirectionalList<Value> {
+  case empty
+  case single(Value, next: BidirectionalList<Value>, previoua: BidirectionalList<Value>)
+}
+
+let list = BidirectionalList<Int>
+  .single(1, next: .single(2, next: .empty, previous: <#T##BidirectionalList<Int>#>), previoua: <#T##BidirectionalList<Int>#>)
 
 // [1, 2, 3].reduce(<#T##initialResult: Result##Result#>, <#T##nextPartialResult: (Result, Int) throws -> Result##(Result, Int) throws -> Result#>)
 

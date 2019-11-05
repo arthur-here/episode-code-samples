@@ -36,6 +36,14 @@ public final class Store<Value, Action>: ObservableObject {
     return localStore
   }
 
+  public func viewNoActions() -> Store<Value, Never> {
+    let localStore = Store<Value, Never>(initialValue: value, reducer: { _, _ in })
+    localStore.cancellable = self.$value.sink { [weak localStore] newValue in
+      localStore?.value = newValue
+    }
+    return localStore
+  }
+
   // ((LocalAction) -> Action) -> ((Store<_, Action>) -> Store<_, LocalAction>)
   // ((B) -> A) -> ((Store<A, _>) -> Store<B, _>)
   // pullback: ((A) -> B) -> (F<B>) -> F<A>)
@@ -83,3 +91,7 @@ public func logging<Value, Action>(
   }
 }
 
+public enum Either<A, B> {
+  case left(A)
+  case right(B)
+}

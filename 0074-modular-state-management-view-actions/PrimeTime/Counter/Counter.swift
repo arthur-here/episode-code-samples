@@ -22,10 +22,7 @@ struct PrimeAlert: Identifiable {
   var id: Int { self.prime }
 }
 
-public enum CounterViewAction {
-  case counter(CounterAction)
-  case primeModal(PrimeModalAction)
-}
+public typealias CounterViewAction = Either<CounterAction, PrimeModalAction>
 
 public typealias CounterViewState = (count: Int, favoritePrimes: [Int])
 
@@ -42,9 +39,9 @@ public struct CounterView: View {
   public var body: some View {
     VStack {
       HStack {
-        Button("-") { self.store.send(.counter(.decrTapped)) }
+        Button("-") { self.store.send(.left(.decrTapped)) }
         Text("\(self.store.value.count)")
-        Button("+") { self.store.send(.counter(.incrTapped)) }
+        Button("+") { self.store.send(.left(.incrTapped)) }
       }
       Button("Is this prime?") { self.isPrimeModalShown = true }
       Button(
@@ -60,7 +57,7 @@ public struct CounterView: View {
         store: self.store
           .view(
             value: { ($0.count, $0.favoritePrimes) },
-            action: { .primeModal($0) }
+            action: { .right($0) }
         )
       )
     }
