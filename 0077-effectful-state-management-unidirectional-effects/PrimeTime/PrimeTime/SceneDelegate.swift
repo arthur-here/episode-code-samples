@@ -12,13 +12,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         rootView: ContentView(
           store: Store(
             initialValue: AppState(),
-            reducer: with(
-              appReducer,
-              compose(
-                logging,
-                activityFeed
-              )
-            )
+            reducer: appReducer
           )
         )
       )

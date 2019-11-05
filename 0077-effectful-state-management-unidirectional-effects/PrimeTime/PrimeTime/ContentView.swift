@@ -7,6 +7,7 @@ import SwiftUI
 struct AppState {
   var count = 0
   var favoritePrimes: [Int] = []
+  var lastFavoritePrimesSaveDate: Date?
   var loggedInUser: User? = nil
   var activityFeed: [Activity] = []
 
@@ -69,37 +70,53 @@ extension AppState {
       self.favoritePrimes = newValue.favoritePrimes
     }
   }
-}
 
-let appReducer: (inout AppState, AppAction) -> Void = combine(
-  pullback(counterViewReducer, value: \.counterView, action: \.counterView),
-  pullback(favoritePrimesReducer, value: \.favoritePrimes, action: \.favoritePrimes)
-)
-
-func activityFeed(
-  _ reducer: @escaping (inout AppState, AppAction) -> Void
-) -> (inout AppState, AppAction) -> Void {
-
-  return { state, action in
-    switch action {
-    case .counterView(.counter),
-         .favoritePrimes(.loadedFavoritePrimes):
-      break
-    case .counterView(.primeModal(.removeFavoritePrimeTapped)):
-      state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.count)))
-
-    case .counterView(.primeModal(.saveFavoritePrimeTapped)):
-      state.activityFeed.append(.init(timestamp: Date(), type: .addedFavoritePrime(state.count)))
-
-    case let .favoritePrimes(.deleteFavoritePrimes(indexSet)):
-      for index in indexSet {
-        state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.favoritePrimes[index])))
-      }
+  var favoritePrimesState: FavoritePrimesState {
+    get {
+      FavoritePrimesState(
+        favoritePrimes: self.favoritePrimes,
+        lastSavedAt: self.lastFavoritePrimesSaveDate
+      )
     }
-
-    reducer(&state, action)
+    set {
+      self.favoritePrimes = newValue.favoritePrimes
+      self.lastFavoritePrimesSaveDate = newValue.lastSavedAt
+    }
   }
 }
+
+let appReducer: Reducer<AppState, AppAction> = combine(
+  pullback(counterViewReducer, value: \AppState.counterView, action: \AppAction.counterView),
+  pullback(favoritePrimesReducer, value: \AppState.favoritePrimesState, action: \AppAction.favoritePrimes)
+)
+//
+//func activityFeed(
+//  _ reducer: Reducer<AppState, AppAction>
+//) -> Reducer<AppState, AppAction> {
+//
+//  return { state, action in
+//    switch action {
+//    case .counterView(.counter),
+//         .favoritePrimes(.loadedFavoritePrimes),
+//         .favoritePrimes(.setSaveDate):
+//      break
+//    case .counterView(.primeModal(.removeFavoritePrimeTapped)):
+//      state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.count)))
+//
+//    case .counterView(.primeModal(.saveFavoritePrimeTapped)):
+//      state.activityFeed.append(.init(timestamp: Date(), type: .addedFavoritePrime(state.count)))
+//
+//    case let .favoritePrimes(.deleteFavoritePrimes(indexSet)):
+//      for index in indexSet {
+//        state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.favoritePrimes[index])))
+//      }
+//    case .favoritePrimes(.loadButtonTapped): break
+//    case .favoritePrimes(.saveButtonTapped): break
+//    }
+//
+//    reducer(&state, action)
+//  }
+//}
 
 struct ContentView: View {
   @ObservedObject var store: Store<AppState, AppAction>
@@ -121,7 +138,7 @@ struct ContentView: View {
           "Favorite primes",
           destination: FavoritePrimesView(
             store: self.store.view(
-              value: { $0.favoritePrimes },
+              value: { $0.favoritePrimesState },
               action: { .favoritePrimes($0) }
             )
           )
