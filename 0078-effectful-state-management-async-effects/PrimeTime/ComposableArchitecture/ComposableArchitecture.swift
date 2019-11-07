@@ -11,21 +11,49 @@ struct Parallel<A> {
 
 //public typealias Effect<Action> = (@escaping (Action) -> Void) -> Void
 
-public struct Effect<Output>: Publisher {
-  public typealias Failure = Never
+public struct Effect<A> {
+  public init(run: @escaping (@escaping (A) -> Void) -> Void) {
+    self.run = run
+  }
 
-  let publisher: AnyPublisher<Output, Failure>
+  let run: (@escaping (A) -> Void) -> Void
+}
 
-  public func receive<S>(
-    subscriber: S
-  ) where S: Subscriber, Failure == S.Failure, Output == S.Input {
-    self.publisher.receive(subscriber: subscriber)
+extension Effect {
+  public func map<B>(_ f: @escaping (A) -> B) -> Effect<B> {
+    return Effect<B> { callback in
+      self.run { a in
+        callback(f(a))
+      }
+    }
+  }
+
+  public func receive(on queue: DispatchQueue) -> Effect<A> {
+    return Effect { callback in
+      queue.async {
+        self.run(callback)
+      }
+    }
+  }
+
+  public func flatMap<B>(_ f: @escaping (A) -> Effect<B>) -> Effect<B> {
+    return Effect<B> { callback in
+      self.run { aValue in
+        f(aValue).run { bValue in
+          callback(bValue)
+        }
+      }
+    }
   }
 }
 
-extension Publisher where Failure == Never {
-  public func eraseToEffect() -> Effect<Output> {
-    return Effect(publisher: self.eraseToAnyPublisher())
+public func zip<A, B>(_ a: Effect<A>, _ b: Effect<B>) -> Effect<(A, B)> {
+  return Effect { callback in
+    a.run { aValue in
+      b.run { bValue in
+        callback((aValue, bValue))
+      }
+    }
   }
 }
 
@@ -37,7 +65,6 @@ public final class Store<Value, Action>: ObservableObject {
   private let reducer: Reducer<Value, Action>
   @Published public private(set) var value: Value
   private var viewCancellable: Cancellable?
-  private var effectCancellables: [AnyCancellable] = []
 
   public init(initialValue: Value, reducer: @escaping Reducer<Value, Action>) {
     self.reducer = reducer
@@ -47,25 +74,8 @@ public final class Store<Value, Action>: ObservableObject {
   public func send(_ action: Action) {
     let effects = self.reducer(&self.value, action)
     effects.forEach { effect in
-      var effectCancellable: AnyCancellable!
-      effectCancellable = effect
-        .sink(
-          receiveCompletion: { [weak self] _ in
-            self?.effectCancellables.removeAll(where: { $0 == effectCancellable })
-        },
-          receiveValue: self.send
-      )
-      self.effectCancellables.append(effectCancellable)
+      effect.run(self.send)
     }
-//    DispatchQueue.global().async {
-//      effects.forEach { effect in
-//        if let action = effect() {
-//          DispatchQueue.main.async {
-//            self.send(action)
-//          }
-//        }
-//      }
-//    }
   }
 
   public func view<LocalValue, LocalAction>(
@@ -105,13 +115,13 @@ public func pullback<LocalValue, GlobalValue, LocalAction, GlobalAction>(
     guard let localAction = globalAction[keyPath: action] else { return [] }
     let localEffects = reducer(&globalValue[keyPath: value], localAction)
     return localEffects.map { localEffect in
-      localEffect
-        .map { localAction -> GlobalAction in
+      return Effect { callback in
+        localEffect.run { localAction in
           var globalAction = globalAction
           globalAction[keyPath: action] = localAction
-          return globalAction
+          callback(globalAction)
+        }
       }
-      .eraseToEffect()
     }
   }
 }
@@ -122,32 +132,25 @@ public func logging<Value, Action>(
   return { value, action in
     let effects = reducer(&value, action)
     let newValue = value
-    return [
-      Deferred {
-        Future { _ in
-          print("Action: \(action)")
-          print("Value:")
-          dump(newValue)
-          print("---")
-        }
-      }.eraseToEffect()
-      ] + effects
+    return [Effect(run: { _ in
+      print("Action: \(action)")
+      print("Value:")
+      dump(newValue)
+      print("---")
+    })] + effects
   }
 }
-
-extension Effect {
-  public static func fireAndForget(work: @escaping () -> Void) -> Effect {
-    return Deferred { () -> Empty<Output, Never> in
-      work()
-      return Empty<Output, Never>(completeImmediately: true)
-    }
-    .eraseToEffect()
-  }
-
-  public static func sync(work: @escaping () -> Output) -> Effect {
-    return Deferred {
-      Just(work())
-    }
-    .eraseToEffect()
-  }
-}
+//
+//extension Store {
+//  func presentation<PresentedValue>(
+//    _ value: KeyPath<Value, PresentedValue?>,
+//    dismissAction: Action
+//    ) -> Binding<Store<PresentedValue, Action>?> {
+//    return Binding(
+//      get: {
+//        if value[
+//      },
+//      set: { _ in self.send(dismissAction) }
+//    )
+//  }
+//}
