@@ -77,17 +77,20 @@ public struct CounterViewState {
   public var count: Int
   public var favoritePrimes: [Int]
   public var isNthPrimeButtonDisabled: Bool
+  public var isPrimeByNumber: [Int: Bool]
 
   public init(
     alertNthPrime: PrimeAlert?,
     count: Int,
     favoritePrimes: [Int],
-    isNthPrimeButtonDisabled: Bool
+    isNthPrimeButtonDisabled: Bool,
+    isPrimeByNumber: [Int: Bool]
   ) {
     self.alertNthPrime = alertNthPrime
     self.count = count
     self.favoritePrimes = favoritePrimes
     self.isNthPrimeButtonDisabled = isNthPrimeButtonDisabled
+    self.isPrimeByNumber = isPrimeByNumber
   }
 
   var counter: CounterState {
@@ -96,8 +99,8 @@ public struct CounterViewState {
   }
 
   var primeModal: PrimeModalState {
-    get { (self.count, self.favoritePrimes) }
-    set { (self.count, self.favoritePrimes) = newValue }
+    get { (self.count, self.favoritePrimes, self.isPrimeByNumber[self.count] == true) }
+    set { (self.count, self.favoritePrimes, self.isPrimeByNumber[self.count]) = newValue }
   }
 }
 
@@ -159,7 +162,7 @@ public struct CounterView: View {
       IsPrimeModalView(
         store: self.store
           .view(
-            value: { ($0.count, $0.favoritePrimes) },
+            value: { ($0.count, $0.favoritePrimes, $0.isPrimeByNumber[$0.count] == true) },
             action: { .primeModal($0) }
         )
       )

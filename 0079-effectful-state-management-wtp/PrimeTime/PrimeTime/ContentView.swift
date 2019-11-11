@@ -11,6 +11,7 @@ struct AppState {
   var activityFeed: [Activity] = []
   var alertNthPrime: PrimeAlert? = nil
   var isNthPrimeButtonDisabled: Bool = false
+  var isPrimeByNumber: [Int: Bool] = [:]
 
   struct Activity {
     let timestamp: Date
@@ -63,7 +64,8 @@ extension AppState {
         alertNthPrime: self.alertNthPrime,
         count: self.count,
         favoritePrimes: self.favoritePrimes,
-        isNthPrimeButtonDisabled: self.isNthPrimeButtonDisabled
+        isNthPrimeButtonDisabled: self.isNthPrimeButtonDisabled,
+        isPrimeByNumber: self.isPrimeByNumber
       )
     }
     set {
@@ -71,13 +73,23 @@ extension AppState {
       self.count = newValue.count
       self.favoritePrimes = newValue.favoritePrimes
       self.isNthPrimeButtonDisabled = newValue.isNthPrimeButtonDisabled
+      self.isPrimeByNumber = newValue.isPrimeByNumber
     }
   }
 }
 
+func loggingReducer(state: inout AppState, action: AppAction) -> [Effect<AppAction>] {
+  return [
+    saveEffect(favoritePrimes: state.favoritePrimes)
+      .debounce(for: 1, id: "save")
+      .map { _ in AppAction.favoritePrimes(.saveButtonTapped) }
+  ]
+}
+
 let appReducer = combine(
   pullback(counterViewReducer, value: \AppState.counterView, action: \AppAction.counterView),
-  pullback(favoritePrimesReducer, value: \.favoritePrimes, action: \.favoritePrimes)
+  pullback(favoritePrimesReducer, value: \.favoritePrimes, action: \.favoritePrimes),
+  loggingReducer
 )
 
 func activityFeed(
@@ -89,7 +101,9 @@ func activityFeed(
     case .counterView(.counter),
          .favoritePrimes(.loadedFavoritePrimes),
          .favoritePrimes(.loadButtonTapped),
-         .favoritePrimes(.saveButtonTapped):
+         .favoritePrimes(.saveButtonTapped),
+         .counterView(.primeModal(.checkIsPrime)),
+         .counterView(.primeModal(.isPrimeResponse)):
       break
     case .counterView(.primeModal(.removeFavoritePrimeTapped)):
       state.activityFeed.append(.init(timestamp: Date(), type: .removedFavoritePrime(state.count)))

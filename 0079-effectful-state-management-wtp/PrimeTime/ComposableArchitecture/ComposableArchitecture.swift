@@ -23,6 +23,16 @@ public struct Effect<A> {
   public func map<B>(_ f: @escaping (A) -> B) -> Effect<B> {
     return Effect<B> { callback in self.run { a in callback(f(a)) } }
   }
+
+  public func flatMap<B>(_ f: @escaping (A) -> Effect<B>) -> Effect<B> {
+    return Effect<B> { callback in
+      self.run { a in
+        f(a).run { b in
+          callback(b)
+        }
+      }
+    }
+  }
 }
 
 public typealias Reducer<Value, Action> = (inout Value, Action) -> [Effect<Action>]
@@ -129,5 +139,57 @@ public func logging<Value, Action>(
       dump(newValue)
       print("---")
     }] + effects
+  }
+}
+
+extension Effect {
+  public func run(on queue: DispatchQueue) -> Effect {
+    return Effect { callback in
+      queue.async {
+        self.run { value in
+          callback(value)
+        }
+      }
+    }
+  }
+}
+
+private var cancellables = [AnyHashable: Bool]()
+extension Effect {
+  func delayed(by duration: TimeInterval, queue: DispatchQueue) -> Effect {
+    return Effect { callback in
+      queue.asyncAfter(deadline: .now() + duration) {
+        self.run { a in
+          callback(a)
+        }
+      }
+    }
+  }
+
+  func cancellable<Id: Hashable>(id: Id) -> Effect {
+    return Effect { callback in
+      self.run { value in
+        guard cancellables[id] != true else {
+          return
+        }
+
+        callback(value)
+      }
+    }
+  }
+
+  static func cancel<Id: Hashable>(id: Id) -> Effect<Void> {
+    return Effect<Void> { callback in
+      cancellables[id] = true
+      callback(Void())
+    }
+  }
+
+  public func debounce<Id: Hashable>(
+    for duration: TimeInterval,
+    id: Id
+  ) -> Effect {
+    return Effect.cancel(id: id)
+      .flatMap { self.cancellable(id: id).delayed(by: duration, queue: .main) }
   }
 }

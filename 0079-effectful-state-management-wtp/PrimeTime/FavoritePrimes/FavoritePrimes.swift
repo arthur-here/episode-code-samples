@@ -22,14 +22,14 @@ public func favoritePrimesReducer(state: inout [Int], action: FavoritePrimesActi
 
   case .saveButtonTapped:
 //    let state = state
-    return [saveEffect(favoritePrimes: state)]
+    return [saveEffect(favoritePrimes: state).map { _ in FavoritePrimesAction.saveButtonTapped }]
 
   case .loadButtonTapped:
     return [loadEffect]
   }
 }
 
-private func saveEffect(favoritePrimes: [Int]) -> Effect<FavoritePrimesAction> {
+public func saveEffect(favoritePrimes: [Int]) -> Effect<Void> {
   return Effect { _ in
     let data = try! JSONEncoder().encode(favoritePrimes)
     let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
