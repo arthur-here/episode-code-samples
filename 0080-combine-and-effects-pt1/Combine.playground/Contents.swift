@@ -1,3 +1,5 @@
+import UIKit
+
 
 public struct Effect<A> {
   public let run: (@escaping (A) -> Void) -> Void
@@ -9,74 +11,59 @@ public struct Effect<A> {
 
 import Dispatch
 
-let anIntInTwoSeconds = Effect<Int> { callback in
-  DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-    callback(42)
-    callback(1729)
-  }
-}
+final class EagerEffect<A> {
+  private var cachedValue: A?
+  private var waiters = [(A) -> Void]()
+  private var lock = os_unfair_lock()
 
-anIntInTwoSeconds.run { int in print(int) }
+  init(worker: (@escaping (A) -> Void) -> Void) {
+    worker { [weak self] value in
+      guard let self = self else {
+        return
+      }
 
-//anIntInTwoSeconds.map { $0 * $0 }.run { int in print(int) }
+      os_unfair_lock_lock(&self.lock)
+      self.cachedValue = value
 
-import Combine
+      for waiter in self.waiters {
+        waiter(value)
+      }
 
-//Publisher.init
-
-//AnyPublisher.init(<#T##publisher: Publisher##Publisher#>)
-
-
-var count = 0
-let iterator = AnyIterator<Int>.init {
-  count += 1
-  return count
-}
-Array(iterator.prefix(10))
-
-let aFutureInt = Deferred {
-  Future<Int, Never> { callback in
-    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-      print("Hello from the future")
-      callback(.success(42))
-      callback(.success(1729))
+      self.waiters.removeAll()
+      os_unfair_lock_unlock(&self.lock)
     }
   }
+
+  func run(callback: @escaping (A) -> Void) {
+    os_unfair_lock_lock(&lock)
+    if let value = cachedValue {
+      print("used cached value")
+      callback(value)
+    } else {
+      print("added to waiters queue")
+      waiters.append(callback)
+    }
+    os_unfair_lock_unlock(&lock)
+  }
 }
 
-//aFutureInt.subscribe(AnySubscriber<Int, Never>.init(
-//  receiveSubscription: { subscription in
-//    print("subscription")
-//    subscription.cancel()
-//    subscription.request(.unlimited)
-//},
-//  receiveValue: { value -> Subscribers.Demand in
-//    print("value", value)
-//    return .unlimited
-//},
-//  receiveCompletion: { completion in
-//    print("completion", completion)
-//}
-//))
-
-let cancellable = aFutureInt.sink { int in
-  print(int)
-}
-//cancellable.cancel()
-
-//Subject.init
-
-let passthrough = PassthroughSubject<Int, Never>.init()
-let currentValue = CurrentValueSubject<Int, Never>.init(2)
-
-let c1 = passthrough.sink { x in
-  print("passthrough", x)
-}
-let c2 = currentValue.sink { x in
-  print("currentValue", x)
+let delayedInt = EagerEffect<Int> { callback in
+  print("worker started")
+  DispatchQueue.main.asyncAfter(wallDeadline: .now() + 1) {
+    callback(420)
+  }
 }
 
-passthrough.send(42)
-currentValue.send(1729)
-passthrough.send(42)
-currentValue.send(1729)
+delayedInt.run { int in
+  print("1 \(int)")
+}
+
+delayedInt.run { print("2 \($0)") }
+
+DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+  delayedInt.run { print("3 \($0)") }
+}
+
+
+import PlaygroundSupport
+PlaygroundPage.current.needsIndefiniteExecution = true
