@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import SwiftUI
+import Combine
 
 public enum FavoritePrimesAction {
   case deleteFavoritePrimes(IndexSet)
@@ -8,27 +9,25 @@ public enum FavoritePrimesAction {
   case saveButtonTapped
 }
 
-public func favoritePrimesReducer(state: inout [Int], action: FavoritePrimesAction) -> [Effect<FavoritePrimesAction>] {
+public func favoritePrimesReducer(state: inout [Int], action: FavoritePrimesAction) -> Effect<FavoritePrimesAction> {
   switch action {
   case let .deleteFavoritePrimes(indexSet):
     for index in indexSet {
       state.remove(at: index)
     }
-    return []
+    return Empty().eraseToEffect()
 
   case let .loadedFavoritePrimes(favoritePrimes):
     state = favoritePrimes
-    return []
+    return Empty().eraseToEffect()
 
   case .saveButtonTapped:
-    return [saveEffect(favoritePrimes: state)]
+    return saveEffect(favoritePrimes: state)
 
   case .loadButtonTapped:
-    return [
-      loadEffect
+    return loadEffect
         .compactMap { $0 }
         .eraseToEffect()
-    ]
   }
 }
 
