@@ -95,8 +95,8 @@ public struct CounterViewState: Equatable {
   }
 
   var primeModal: PrimeModalState {
-    get { (self.count, self.favoritePrimes) }
-    set { (self.count, self.favoritePrimes) = newValue }
+    get { PrimeModalState(count: self.count, favoritePrimes: self.favoritePrimes) }
+    set { (self.count, self.favoritePrimes) = (newValue.count, newValue.favoritePrimes) }
   }
 }
 
@@ -156,7 +156,7 @@ public struct CounterView: View {
       IsPrimeModalView(
         store: self.store
           .view(
-            value: { ($0.count, $0.favoritePrimes) },
+            value: { $0.primeModal },
             action: { .primeModal($0) }
         )
       )

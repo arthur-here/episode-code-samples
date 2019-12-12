@@ -81,6 +81,17 @@ extension FileClient {
       }
   }
   )
+
+  static let userDefaults = FileClient(
+    load: { fileName -> Effect<Data?> in
+      .sync { UserDefaults.standard.data(forKey: fileName) }
+    },
+    save: { fileName, data in
+      .fireAndForget {
+        UserDefaults.standard.set(data, forKey: fileName)
+      }
+    }
+  )
 }
 
 struct FavoritePrimesEnvironment {

@@ -2,34 +2,29 @@ import Combine
 import ComposableArchitecture
 import XCTest
 
-enum StepType {
-  case send
-  case receive
+public enum StepType<Value, Action> {
+  case send(Action, (inout Value) -> Void)
+  case receive(Action, (inout Value) -> Void)
+  case fireAndForget
 }
 
-struct Step<Value, Action> {
-  let type: StepType
-  let action: Action
-  let update: (inout Value) -> Void
+public struct Step<Value, Action> {
+  let type: StepType<Value, Action>
   let file: StaticString
   let line: UInt
 
-  init(
-    _ type: StepType,
-    _ action: Action,
+  public init(
+    _ type: StepType<Value, Action>,
     file: StaticString = #file,
-    line: UInt = #line,
-    _ update: @escaping (inout Value) -> Void
+    line: UInt = #line
   ) {
     self.type = type
-    self.action = action
-    self.update = update
     self.file = file
     self.line = line
   }
 }
 
-func assert<Value: Equatable, Action: Equatable>(
+public func assert<Value: Equatable, Action: Equatable>(
   initialValue: Value,
   reducer: Reducer<Value, Action>,
   steps: Step<Value, Action>...,
@@ -44,13 +39,14 @@ func assert<Value: Equatable, Action: Equatable>(
     var expected = state
 
     switch step.type {
-    case .send:
+    case let .send(action, update):
       if !effects.isEmpty {
         XCTFail("Action sent before handling \(effects.count) pending effect(s)", file: step.file, line: step.line)
       }
-      effects.append(contentsOf: reducer(&state, step.action))
+      effects.append(contentsOf: reducer(&state, action))
+      update(&expected)
 
-    case .receive:
+    case let .receive(action, update):
       guard !effects.isEmpty else {
         XCTFail("No pending effects to receive from", file: step.file, line: step.line)
         break
@@ -69,11 +65,32 @@ func assert<Value: Equatable, Action: Equatable>(
       if XCTWaiter.wait(for: [receivedCompletion], timeout: 0.01) != .completed {
         XCTFail("Timed out waiting for the effect to complete", file: step.file, line: step.line)
       }
-      XCTAssertEqual(action, step.action, file: step.file, line: step.line)
+      XCTAssertEqual(action, action, file: step.file, line: step.line)
       effects.append(contentsOf: reducer(&state, action))
+      update(&expected)
+
+    case .fireAndForget:
+      guard !effects.isEmpty else {
+        XCTFail("No pending effects to fire and forget", file: step.file, line: step.line)
+        break
+      }
+
+      let effect = effects.removeFirst()
+      let receivedCompletion = XCTestExpectation(description: "receivedCompletion")
+      cancellables.append(
+        effect.sink(
+          receiveCompletion: { _ in
+            receivedCompletion.fulfill()
+        },
+          receiveValue: { _ in XCTFail() }
+        )
+      )
+      if XCTWaiter.wait(for: [receivedCompletion], timeout: 0.01) != .completed {
+        XCTFail("Timed out waiting for the effect to complete", file: step.file, line: step.line)
+      }
     }
 
-    step.update(&expected)
+
     XCTAssertEqual(state, expected, file: step.file, line: step.line)
   }
   if !effects.isEmpty {

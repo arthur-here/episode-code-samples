@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CA675A56238072DB00724A38 /* ComposableArchitectureTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA675A55238072DB00724A38 /* ComposableArchitectureTestSupport.swift */; };
+		8E83BDBD23A2BE7000BE0818 /* ComposableArchitectureTestSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E83BDBB23A2BE7000BE0818 /* ComposableArchitectureTestSupport.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		8E83BDC023A2BE7000BE0818 /* ComposableArchitectureTestSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E83BDB923A2BE7000BE0818 /* ComposableArchitectureTestSupport.framework */; };
+		8E83BDC123A2BE7000BE0818 /* ComposableArchitectureTestSupport.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8E83BDB923A2BE7000BE0818 /* ComposableArchitectureTestSupport.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8E83BDC523A2BE7F00BE0818 /* ComposableArchitectureTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA675A55238072DB00724A38 /* ComposableArchitectureTestSupport.swift */; };
 		CAD67E2023329887000C7787 /* WolframAlpha.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC29217322FB231F006090DF /* WolframAlpha.swift */; };
 		DC36ED17234CD8040027F7A1 /* ComposableArchitecture.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DCF0C59B2326032B008B45A0 /* ComposableArchitecture.framework */; };
 		DC90717022FA102900B38B42 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC90716F22FA102900B38B42 /* AppDelegate.swift */; };
@@ -47,6 +50,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		8E83BDBE23A2BE7000BE0818 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DC90716422FA102900B38B42 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8E83BDB823A2BE7000BE0818;
+			remoteInfo = ComposableArchitectureTestSupport;
+		};
 		CAD67E1C2332982E000C7787 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DC90716422FA102900B38B42 /* Project object */;
@@ -171,6 +181,7 @@
 				DCF0C6182326036F008B45A0 /* FavoritePrimes.framework in Embed Frameworks */,
 				DCF0C5B22326032B008B45A0 /* ComposableArchitecture.framework in Embed Frameworks */,
 				DCF0C5D423260348008B45A0 /* Counter.framework in Embed Frameworks */,
+				8E83BDC123A2BE7000BE0818 /* ComposableArchitectureTestSupport.framework in Embed Frameworks */,
 				DCF0C5F62326035C008B45A0 /* PrimeModal.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -179,6 +190,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8E83BDB923A2BE7000BE0818 /* ComposableArchitectureTestSupport.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ComposableArchitectureTestSupport.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8E83BDBB23A2BE7000BE0818 /* ComposableArchitectureTestSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ComposableArchitectureTestSupport.h; sourceTree = "<group>"; };
+		8E83BDBC23A2BE7000BE0818 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CA675A55238072DB00724A38 /* ComposableArchitectureTestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposableArchitectureTestSupport.swift; sourceTree = "<group>"; };
 		DC29217322FB231F006090DF /* WolframAlpha.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WolframAlpha.swift; sourceTree = "<group>"; };
 		DC39325F230241AF005A0B0A /* PrimeTime.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = PrimeTime.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -225,10 +239,18 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		8E83BDB623A2BE7000BE0818 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DC90716922FA102900B38B42 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E83BDC023A2BE7000BE0818 /* ComposableArchitectureTestSupport.framework in Frameworks */,
 				DCF88F02234D4A3B001BA79A /* ComposableArchitecture.framework in Frameworks */,
 				DCF0C5D323260348008B45A0 /* Counter.framework in Frameworks */,
 				DCF0C6172326036F008B45A0 /* FavoritePrimes.framework in Frameworks */,
@@ -309,6 +331,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8E83BDBA23A2BE7000BE0818 /* ComposableArchitectureTestSupport */ = {
+			isa = PBXGroup;
+			children = (
+				8E83BDBB23A2BE7000BE0818 /* ComposableArchitectureTestSupport.h */,
+				CA675A55238072DB00724A38 /* ComposableArchitectureTestSupport.swift */,
+				8E83BDBC23A2BE7000BE0818 /* Info.plist */,
+			);
+			path = ComposableArchitectureTestSupport;
+			sourceTree = "<group>";
+		};
 		DC36ED16234CD8040027F7A1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -330,6 +362,7 @@
 				DCF0C5EE2326035C008B45A0 /* PrimeModalTests */,
 				DCF0C6032326036F008B45A0 /* FavoritePrimes */,
 				DCF0C6102326036F008B45A0 /* FavoritePrimesTests */,
+				8E83BDBA23A2BE7000BE0818 /* ComposableArchitectureTestSupport */,
 				DC90716D22FA102900B38B42 /* Products */,
 				DC36ED16234CD8040027F7A1 /* Frameworks */,
 			);
@@ -348,6 +381,7 @@
 				DCF0C5E82326035C008B45A0 /* PrimeModalTests.xctest */,
 				DCF0C6022326036F008B45A0 /* FavoritePrimes.framework */,
 				DCF0C60A2326036F008B45A0 /* FavoritePrimesTests.xctest */,
+				8E83BDB923A2BE7000BE0818 /* ComposableArchitectureTestSupport.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -419,7 +453,6 @@
 			children = (
 				DCF0C5CD23260348008B45A0 /* CounterTests.swift */,
 				DCF0C5CF23260348008B45A0 /* Info.plist */,
-				CA675A55238072DB00724A38 /* ComposableArchitectureTestSupport.swift */,
 			);
 			path = CounterTests;
 			sourceTree = "<group>";
@@ -465,6 +498,14 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		8E83BDB423A2BE7000BE0818 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E83BDBD23A2BE7000BE0818 /* ComposableArchitectureTestSupport.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DCF0C5962326032B008B45A0 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -500,6 +541,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		8E83BDB823A2BE7000BE0818 /* ComposableArchitectureTestSupport */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8E83BDC423A2BE7000BE0818 /* Build configuration list for PBXNativeTarget "ComposableArchitectureTestSupport" */;
+			buildPhases = (
+				8E83BDB423A2BE7000BE0818 /* Headers */,
+				8E83BDB523A2BE7000BE0818 /* Sources */,
+				8E83BDB623A2BE7000BE0818 /* Frameworks */,
+				8E83BDB723A2BE7000BE0818 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ComposableArchitectureTestSupport;
+			productName = ComposableArchitectureTestSupport;
+			productReference = 8E83BDB923A2BE7000BE0818 /* ComposableArchitectureTestSupport.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 		DC90716B22FA102900B38B42 /* PrimeTime */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DC90718B22FA102B00B38B42 /* Build configuration list for PBXNativeTarget "PrimeTime" */;
@@ -515,6 +574,7 @@
 				DCF0C5AF2326032B008B45A0 /* PBXTargetDependency */,
 				DCF0C5D223260348008B45A0 /* PBXTargetDependency */,
 				DCF0C6162326036F008B45A0 /* PBXTargetDependency */,
+				8E83BDBF23A2BE7000BE0818 /* PBXTargetDependency */,
 			);
 			name = PrimeTime;
 			productName = PrimeTime;
@@ -701,6 +761,9 @@
 				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = "Point-Free";
 				TargetAttributes = {
+					8E83BDB823A2BE7000BE0818 = {
+						CreatedOnToolsVersion = 11.2;
+					};
 					DC90716B22FA102900B38B42 = {
 						CreatedOnToolsVersion = 11.0;
 					};
@@ -762,11 +825,19 @@
 				DCF0C5E72326035C008B45A0 /* PrimeModalTests */,
 				DCF0C6012326036F008B45A0 /* FavoritePrimes */,
 				DCF0C6092326036F008B45A0 /* FavoritePrimesTests */,
+				8E83BDB823A2BE7000BE0818 /* ComposableArchitectureTestSupport */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		8E83BDB723A2BE7000BE0818 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DC90716A22FA102900B38B42 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -843,6 +914,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		8E83BDB523A2BE7000BE0818 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E83BDC523A2BE7F00BE0818 /* ComposableArchitectureTestSupport.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DC90716822FA102900B38B42 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -892,7 +971,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DCF0C5CE23260348008B45A0 /* CounterTests.swift in Sources */,
-				CA675A56238072DB00724A38 /* ComposableArchitectureTestSupport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -931,6 +1009,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		8E83BDBF23A2BE7000BE0818 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8E83BDB823A2BE7000BE0818 /* ComposableArchitectureTestSupport */;
+			targetProxy = 8E83BDBE23A2BE7000BE0818 /* PBXContainerItemProxy */;
+		};
 		CAD67E1D2332982E000C7787 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DCF0C5DF2326035C008B45A0 /* PrimeModal */;
@@ -1025,6 +1108,70 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		8E83BDC223A2BE7000BE0818 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				INFOPLIST_FILE = ComposableArchitectureTestSupport/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_LDFLAGS = "-weak-lswiftXCTest";
+				PRODUCT_BUNDLE_IDENTIFIER = com.uptech.ComposableArchitectureTestSupport;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		8E83BDC323A2BE7000BE0818 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				INFOPLIST_FILE = ComposableArchitectureTestSupport/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_LDFLAGS = "-weak-lswiftXCTest";
+				PRODUCT_BUNDLE_IDENTIFIER = com.uptech.ComposableArchitectureTestSupport;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 		DC90718922FA102B00B38B42 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1588,6 +1735,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		8E83BDC423A2BE7000BE0818 /* Build configuration list for PBXNativeTarget "ComposableArchitectureTestSupport" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8E83BDC223A2BE7000BE0818 /* Debug */,
+				8E83BDC323A2BE7000BE0818 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		DC90716722FA102900B38B42 /* Build configuration list for PBXProject "PrimeTime" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

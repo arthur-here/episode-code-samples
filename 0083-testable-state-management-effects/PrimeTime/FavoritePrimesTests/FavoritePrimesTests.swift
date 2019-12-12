@@ -16,10 +16,11 @@ class FavoritePrimesTests: XCTestCase {
   }
 
   func testSaveButtonTapped() {
-    var didSave = false
+
+    var savedData: Data! = nil
     Current.fileClient.save = { _, data in
       .fireAndForget {
-        didSave = true
+        savedData = data
       }
     }
 
@@ -31,7 +32,8 @@ class FavoritePrimesTests: XCTestCase {
 
     effects[0].sink { _ in XCTFail() }
 
-    XCTAssert(didSave)
+    let decodedSavedData = try! JSONDecoder().decode([Int].self, from: XCTUnwrap(savedData))
+    XCTAssertEqual(decodedSavedData, [2, 3, 5, 7])
   }
 
   func testLoadFavoritePrimesFlow() {
@@ -45,6 +47,7 @@ class FavoritePrimesTests: XCTestCase {
 
     var nextAction: FavoritePrimesAction!
     let receivedCompletion = self.expectation(description: "receivedCompletion")
+    let receivedValue = self.expectation(description: "receivedValue")
     effects[0].sink(
       receiveCompletion: { _ in
         receivedCompletion.fulfill()
@@ -52,8 +55,9 @@ class FavoritePrimesTests: XCTestCase {
       receiveValue: { action in
         XCTAssertEqual(action, .loadedFavoritePrimes([2, 31]))
         nextAction = action
+        receivedValue.fulfill()
     })
-    self.wait(for: [receivedCompletion], timeout: 0)
+    self.wait(for: [receivedCompletion, receivedValue], timeout: 0)
 
     effects = favoritePrimesReducer(state: &state, action: nextAction)
 
